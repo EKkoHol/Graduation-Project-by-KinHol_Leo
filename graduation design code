@@ -1,0 +1,151 @@
+import numpy as np
+import pandas as pd
+df=pd.read_csv('C:/Users/asus/Desktop/毕设/ALFF.csv')
+
+from sklearn.model_selection import train_test_split
+X = df.drop('ID',axis=1)
+X = X.drop('AGE',axis=1)
+y=df.AGE
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+lda=LDA(n_components=3)
+dataMat_new=lda.fit_transform(X,y)
+dataMat_new.shape
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+fig = plt.figure(dpi=128,figsize=(8,8))
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(dataMat_new[:,0], dataMat_new[:,1],dataMat_new[:,2], color='PURPLE',s=25, marker="*",alpha = 9/25)
+plt.show()
+y=df.AGE
+y=y.values
+X=dataMat_new
+X=-1*X
+%matplotlib inline
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import load_wine
+
+from sklearn.model_selection import train_test_split
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(X,y,test_size=0.3)
+clf = DecisionTreeClassifier(random_state=0)
+rfc = RandomForestClassifier(random_state=0)
+clf = clf.fit(Xtrain,Ytrain)
+rfc = rfc.fit(Xtrain,Ytrain)
+score_c = clf.score(Xtest,Ytest)
+score_r = rfc.score(Xtest,Ytest)
+ 
+print("Single Tree:{}".format(score_c)
+      ,"Random Forest:{}".format(score_r)
+     )
+x=X
+##随机森林和决策树在一组交叉验证下的效果对比
+from sklearn.model_selection import cross_val_score
+import matplotlib.pyplot as plt
+ 
+rfc = RandomForestClassifier(n_estimators=100)
+rfc_s = cross_val_score(rfc,x,y,cv=10)
+ 
+clf = DecisionTreeClassifier()
+clf_s = cross_val_score(clf,x,y,cv=10)
+ 
+plt.plot(range(1,11),rfc_s,label = "RandomForest",color="purple",linewidth=3)
+plt.plot(range(1,11),clf_s,label = "Decision Tree",color="navy",linewidth=3)
+plt.legend()
+plt.show()
+from sklearn.datasets import load_breast_cancer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+scorel = []
+for i in range(0, 200, 10):
+    rfc = RandomForestClassifier(n_estimators=i + 1
+                                 , n_jobs = -1
+                                 , random_state = 90)
+    score = cross_val_score(rfc, x, y, cv=10).mean()
+    scorel.append(score)
+print(max(scorel), (scorel.index(max(scorel)) * 10) + 1)
+plt.figure(figsize=[20, 5])
+plt.plot(range(1, 201, 10), scorel,color="purple",linewidth=3)
+plt.show()
+from sklearn.datasets import load_breast_cancer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+data=load_breast_cancer()
+
+scorel = []
+for i in range(35, 45, 1):
+    rfc = RandomForestClassifier(n_estimators=i + 1
+                                 , n_jobs = -1
+                                 , random_state = 90)
+    score = cross_val_score(rfc, x, y, cv=10).mean()
+    scorel.append(score)
+print(max(scorel),([*range(35, 45)][scorel.index(max(scorel))]))
+plt.figure(figsize=[20,5])
+plt.plot(range(35, 45),scorel,color="purple",linewidth=3)
+plt.show()
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X,
+                                                    y,
+                                                    test_size=0.3,
+                                                    random_state=0)
+
+# 特征缩放，通常没必要
+# 因为数据单位，自变量数值范围差距巨大，不缩放也没问题
+from sklearn.preprocessing import StandardScaler
+# 训练随机森林解决回归问题
+from sklearn.ensemble import RandomForestRegressor
+
+regressor = RandomForestRegressor(n_estimators=40, random_state=0)
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
+
+# 评估回归性能
+from sklearn import metrics
+
+print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
+print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
+print('Root Mean Squared Error:',
+      np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+      score=[]
+
+for i in range(1,20,1):
+    rfc=RandomForestClassifier(n_estimators=40
+                              ,random_state = 90
+                              ,n_jobs=-1
+                              ,max_depth=i
+                              )
+    score_c=cross_val_score(rfc, x, y, cv=10).mean()
+    score.append(score_c)
+
+print(max(score),([*range(1,20)][score.index(max(score))]))
+plt.figure(figsize=[20,5])
+plt.plot(range(1,20,1),score,color="purple",linewidth=3)
+plt.show()
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(x,y,test_size=0.3)
+from sklearn import datasets, svm, metrics
+from sklearn.model_selection import GridSearchCV
+import numpy as np
+
+parameters = {'kernel':('linear','rbf'), 'C':[1,10,15]}
+svc=svm.SVC(gamma='scale')
+clf=GridSearchCV(svc,parameters,cv=2)  #cv为交叉验证参数，为5折
+clf.fit(Xtrain,Ytrain)
+print("最佳的参数值:", clf.best_params_)
+print("score：",clf.score(x,y))
+yh=clf.predict(Xtest)
+print("预测准确率：",metrics.accuracy_score(Ytest,yh))
+print("平均绝对误差（Mean Absolute Error）：", metrics.mean_absolute_error(Ytest, yh))
+print('均方误差(Mean Squared Error):', metrics.mean_squared_error(Ytest, yh))
+print('均方根误差(Root Mean Squared Error):',
+      np.sqrt(metrics.mean_squared_error(Ytest, yh)))
